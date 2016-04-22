@@ -21,12 +21,17 @@ public class User {
   private HashMap<String, String> passwords = new HashMap<>();
   private static HashMap<String, String> ids = new HashMap<>();
 
+  public String getPassword() {
+    return password;
+  }
+
   public User(String name, String password) {
     this.name = name;
     this.password = password;
-    this.id = IdGenerator.nextSessionId();
+    id = IdGenerator.nextSessionId();
     ids.put(name, id);
     passwords.put(id, this.password);
+
   }
 
   final static String getId(String name) {
