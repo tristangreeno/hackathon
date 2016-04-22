@@ -6,20 +6,20 @@ import java.util.HashMap;
  * and adding new games.
  */
 public class Game {
-  private HashMap<String, Integer> gamesList = new HashMap<>();
+  private static HashMap<String, Integer> gamesList = new HashMap<>();
   String name;
   Integer quantity;
 
-  public HashMap<String, Integer> getGamesList() {
+  public static HashMap<String, Integer> getGamesList() {
     return gamesList;
   }
 
-  public void checkoutGame(String name){
+  public static void checkoutGame(String name){
     gamesList.remove(name);
   }
 
-  public void addGame(String name, Integer quantity){
-    gamesList.put(name, quantity);
+  public static void addGame(String name, Integer quantity){
+    gamesList.put(name, 1);
   }
 
 }

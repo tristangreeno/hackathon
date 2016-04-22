@@ -1,4 +1,8 @@
 
+import spark.Request;
+import spark.Response;
+import spark.Session;
+
 import java.util.HashMap;
 
 /**
@@ -6,7 +10,7 @@ import java.util.HashMap;
  */
 public class User {
   public static final Integer MAX_LENGTH = 15;
-  private String id;
+  private static String id;
   private String name;
   private String password;
 
@@ -15,9 +19,9 @@ public class User {
   }
 
   private HashMap<String, String> passwords = new HashMap<>();
-  private HashMap<String, String> ids = new HashMap<>();
+  private static HashMap<String, String> ids = new HashMap<>();
 
-  public User(String name, String password){
+  public User(String name, String password) {
     this.name = name;
     this.password = password;
     this.id = IdGenerator.nextSessionId();
@@ -25,12 +29,22 @@ public class User {
     passwords.put(id, this.password);
   }
 
-  public final String getId(String name){
+  final static String getId(String name) {
     return ids.get(name);
   }
 
-  public final boolean authenticate(String id, String password){
+  final boolean authenticate(String id, String password) {
     return password.equals(passwords.get(id));
+  }
+
+  static void checkIfUserIsLoggedIn(Request request, Response response) {
+    Session s = request.session();
+    String username = s.attribute("userName");
+    User user = Main.users.get(username);
+
+    if (user == null) {
+      response.status(401);
+    }
   }
 }
 

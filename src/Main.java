@@ -1,19 +1,16 @@
 /**
  * Created by tristangreeno on 4/22/16.
  */
-import spark.ModelAndView;
-import spark.Session;
-import spark.Spark;
+import spark.*;
 import spark.template.mustache.MustacheTemplateEngine;
 
-import javax.xml.ws.http.HTTPException;
 import java.util.HashMap;
 import java.util.Map;
 
 
 public class Main {
 
-  private static HashMap<String, User> users = new HashMap<>();
+  static HashMap<String, User> users = new HashMap<>();
   private static HashMap<String, String> games = new HashMap<>();
 
   public static void main(String[] args) {
@@ -82,13 +79,27 @@ public class Main {
     Spark.post(
       "/add-game",
       (request, response) -> {
+        User.checkIfUserIsLoggedIn(request, response);
+        String gameName = request.queryParams("gameName");
+        Integer gameNum = Integer.valueOf(request.queryParams("gameNumber"));
+        Game.addGame(gameName, gameNum);
+
+        response.redirect("/");
+        return "";
+      }
+    );
+
+    Spark.post(
+      "/checkout-game",
+      (request, response) -> {
+        User.checkIfUserIsLoggedIn(request, response);
+        String gameName = request.queryParams("gameName");
         Session s = request.session();
         String username = s.attribute("userName");
-        User user = users.get(username);
+        String id = User.getId(username);
 
-        if(user == null){
-          response.status(401);
-        }
+        Game.checkoutGame(gameName);
+        games.put(id, gameName);
 
         response.redirect("/");
         return "";
