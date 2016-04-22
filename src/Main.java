@@ -23,12 +23,14 @@ public class Main {
         String json = request.body();
         User login = ReadWriteFile.readUserJson(request, response, json);
         Session s = request.session();
-        assert login != null;
-        s.attribute("userName", login.getName());
-        User user = users.get(login.getName());
 
-        if(user == null){
+        if (login != null) {
+          s.attribute("userName", login.getName());
+          User user = users.get(login.getName());
           users.put(login.getName(), new User(login.getName(), login.getPassword()));
+          if(user == null){
+            users.put(login.getName(), new User(login.getName(), login.getPassword()));
+          }
         }
 
         response.status(200);
@@ -50,6 +52,7 @@ public class Main {
       "/games-list",
       (request, response) -> {
         ReadWriteFile.writeJson(request, response);
+        response.status(200);
         return "";
       }
     );
