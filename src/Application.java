@@ -54,6 +54,30 @@ public class Application {
       }
     );
 
+    Spark.post(
+      "/checkin-game",
+      (request, response) -> {
+        Server.isUserLoggedIn(request, response);
+        Game game = ReadWriteJson.readOneGameFromJson(request.body(), response);
+
+        Session s = request.session();
+        String username = s.attribute("userName");
+
+        if (game != null) {
+            Server.checkoutGame(game.getName());
+            Server.games.put(username, game.getName());
+            Server.gamesList.put(game.getName(), Server.gamesList.get(game.getName()) + 1);
+            ReadWriteJson.writeJson(response);
+            response.status(201);
+            return "{\"msg\": \"ok\"}";
+        }
+
+          response.status(500);
+          return "";
+
+      }
+    );
+
     Spark.get(
       "/games-list",
       (request, response) -> {
@@ -99,17 +123,20 @@ public class Application {
         HashMap<String, Integer> gamesList = Server.getGamesList();
 
         if (game != null) {
-          if(gamesList.get(game.getName()) == 0) {
+          Boolean isGameAvailable = !(gamesList.get(game.getName()) == 0);
+          if(isGameAvailable) {
             Server.checkoutGame(game.getName());
             Server.games.put(username, game.getName());
             Server.gamesList.put(game.getName(), gamesList.get(game.getName()) - 1);
-            String checkedOutGames = ReadWriteJson.writeJson(response);
+            ReadWriteJson.writeJson(response);
             response.status(201);
             return "{\"msg\": \"ok\"}";
           }
 
-          else response.status(403);
-          return "";
+          else {
+            response.status(403);
+            return "";
+          }
         }
 
         response.status(500);
